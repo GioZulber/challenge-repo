@@ -3,7 +3,6 @@
 Aplicación de movimientos bancarios basada en el diseño de Figma. Incluye inicio de sesión, saldo y tarjetas, búsqueda y filtros de movimientos, y detalle de cada operación.
 
 - [Aplicación desplegada](https://challenge-repo-ruby.vercel.app/)
-- [Repositorio en GitHub](https://github.com/GioZulber/challenge-repo)
 
 ## Cómo correr el proyecto
 
