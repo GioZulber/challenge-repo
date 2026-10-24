@@ -13,7 +13,7 @@ export async function getServerSession() {
   const token = (await cookies()).get("gb_session")?.value;
   if (!token) return { auth: { status: "unauthenticated", user: null } as InitialAuth, client: null };
 
-  const apiOrigin = process.env.API_ORIGIN ?? (process.env.NODE_ENV === "development" ? "http://localhost:3001" : undefined);
+  const apiOrigin = process.env.SERVER_URL ?? (process.env.NODE_ENV === "development" ? "http://localhost:3001" : undefined);
   if (!apiOrigin) return { auth: { status: "error", user: null } as InitialAuth, client: null };
 
   const client = createClient({
