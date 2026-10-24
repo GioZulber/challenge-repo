@@ -32,6 +32,5 @@ export function clearSessionCookie(response: Response): void {
 }
 
 export function isAllowedOrigin(request: Request): boolean {
-  // Next rewrites preserve the browser Origin, not the API server Host.
   return request.get("origin") === (process.env.CLIENT_ORIGIN ?? "http://localhost:3000");
 }

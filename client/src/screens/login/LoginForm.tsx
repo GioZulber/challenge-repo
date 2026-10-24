@@ -38,7 +38,7 @@ export default function LoginForm() {
         <input id="password" name="password" type="password" autoComplete="current-password" required placeholder="Ingresá tu contraseña" className="w-full rounded-xl bg-white px-4 py-3.5 text-[#293446] outline-none placeholder:text-[#939ba5] focus-visible:ring-2 focus-visible:ring-[#791a30]" />
       </div>
       <label className="mt-5 flex w-fit cursor-pointer items-center gap-2 text-sm text-[#617083]">
-        <input type="checkbox" name="remember" className="size-4 accent-[#791a30]" /> Recordarme durante 7 días
+        <input type="checkbox" name="remember" className="size-4 accent-[#791a30]" /> Recordarme
       </label>
       {message && <p role="alert" className="mt-5 text-sm text-[#9b203d]">{message}</p>}
       <button type="submit" disabled={pending} className="mt-auto w-full rounded-xl bg-[#791a30] px-5 py-4 font-semibold text-white transition-colors hover:bg-[#641426] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#791a30] disabled:opacity-60 lg:mt-14">

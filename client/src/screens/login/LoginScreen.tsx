@@ -11,7 +11,6 @@ export default function LoginScreen() {
   const [verifyingSession, setVerifyingSession] = useState(status === "authenticated");
 
   useEffect(() => {
-    // El layout conserva el estado al navegar: confirmamos la cookie antes de volver al inicio.
     if (verifyingSession) void refresh().finally(() => setVerifyingSession(false));
   }, [refresh, verifyingSession]);
 

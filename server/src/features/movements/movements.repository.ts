@@ -3,7 +3,6 @@ import type { MovementQueryDto } from "./movements.dto.js";
 
 export function createMovementsRepository(prisma: PrismaClient) {
   return {
-    // shortcut: the demo has a small history; add cursor pagination if histories grow.
     list: (userId: string, query: MovementQueryDto) => prisma.movement.findMany({
       where: {
         userId,

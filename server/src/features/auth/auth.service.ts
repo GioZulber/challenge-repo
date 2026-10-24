@@ -15,7 +15,6 @@ export function createAuthService(prisma: PrismaClient) {
 
     const hash = tokenHash(token);
     const session = await repository.findSession(hash);
-    // shortcut: expired rows stay stored; add periodic cleanup if sessions grow.
     if (!session || session.expiresAt <= new Date()) return null;
     return { user: session.user, tokenHash: hash };
   }
