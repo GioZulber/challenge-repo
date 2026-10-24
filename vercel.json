@@ -12,7 +12,8 @@
       "root": "server",
       "framework": "express",
       "entrypoint": "src/vercel.ts",
-      "buildCommand": "pnpm build"
+      "buildCommand": "pnpm db:generate",
+      "outputDirectory": "."
     }
   },
   "rewrites": [
