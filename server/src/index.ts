@@ -16,7 +16,7 @@ export function createApp(prisma: PrismaClient) {
 
   app.use("/health", healthRoutes);
   app.use("/auth", createAuthRoutes(auth));
-  app.use("/balance", createBalanceRoutes(auth));
+  app.use("/balance", createBalanceRoutes(auth, prisma));
   app.use("/movements", createMovementsRoutes(auth, createMovementsService(prisma)));
 
 

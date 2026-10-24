@@ -23,9 +23,9 @@ export default function MovementFilters({ query, onQueryChange, type, onTypeChan
         <MagnifierIcon size={22} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#617083]" />
         <input id="movement-search" type="search" value={query} onChange={(event) => onQueryChange(event.target.value)} maxLength={100} placeholder="Buscar por persona o servicio" autoComplete="off" className="w-full rounded-xl bg-white py-3.5 pl-12 pr-4 text-[#293446] outline-none placeholder:text-[#788393] focus-visible:ring-2 focus-visible:ring-[#791a30]" />
       </div>
-      <div role="group" aria-label="Filtrar movimientos" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+      <div role="group" aria-label="Filtrar movimientos" className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible">
         {filters.map((filter) => (
-          <button key={filter.value} type="button" aria-pressed={type === filter.value} onClick={() => onTypeChange(filter.value)} className={`min-h-11 rounded-xl px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#791a30] ${type === filter.value ? "bg-[#791a30] text-white" : "bg-white text-[#293446] hover:bg-[#f0e3e6]"}`}>
+          <button key={filter.value} type="button" aria-pressed={type === filter.value} onClick={() => onTypeChange(filter.value)} className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#791a30] sm:focus-visible:outline-offset-2 ${type === filter.value ? "bg-[#791a30] text-white" : "bg-white text-[#293446] hover:bg-[#f0e3e6]"}`}>
             {filter.label}
           </button>
         ))}

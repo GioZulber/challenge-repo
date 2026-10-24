@@ -15,14 +15,17 @@ test("the generated SDK validates API responses", async () => {
   await assert.rejects(fetchResponse({ status: "broken" }), ZodError);
 });
 
-test("the generated balance SDK validates optional card metadata", async () => {
-  const fetchResponse = (card: unknown) => getBalance({
+test("the generated balance SDK validates multiple cards", async () => {
+  const fetchResponse = (cards: unknown) => getBalance({
     baseUrl: "https://example.test",
-    fetch: async () => new Response(JSON.stringify({ balanceCents: 97885, card }), { headers: { "Content-Type": "application/json" } }),
+    fetch: async () => new Response(JSON.stringify({ balanceCents: 97885, cards }), { headers: { "Content-Type": "application/json" } }),
     throwOnError: true,
   });
 
-  assert.equal((await fetchResponse({ brand: "MASTERCARD", last4: "1234", expires: "02/30" })).data?.card?.last4, "1234");
-  assert.equal((await fetchResponse(null)).data?.card, null);
-  await assert.rejects(fetchResponse({ brand: "MASTERCARD", last4: "abc", expires: "02/30" }), ZodError);
+  assert.deepEqual((await fetchResponse([
+    { id: "mastercard", brand: "MASTERCARD", last4: "1234", expires: "02/30" },
+    { id: "visa", brand: "VISA", last4: "5678", expires: "08/30" },
+  ])).data?.cards.map((card) => card.brand), ["MASTERCARD", "VISA"]);
+  assert.deepEqual((await fetchResponse([])).data?.cards, []);
+  await assert.rejects(fetchResponse([{ id: "invalid", brand: "MASTERCARD", last4: "abc", expires: "02/30" }]), ZodError);
 });

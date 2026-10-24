@@ -7,8 +7,12 @@ import { hashPassword } from "./features/auth/password.js";
 
 test("sessions protect balance and movements and can be revoked", async (t) => {
   const users = [
-    { id: "demo", name: "Granate", email: "demo@example.com", balanceCents: 97885, cardBrand: "MASTERCARD", cardLast4: "1234", cardExpires: "02/30", passwordHash: hashPassword("secret-demo") },
-    { id: "other", name: "Other", email: "other@example.com", balanceCents: 0, cardBrand: null, cardLast4: null, cardExpires: null, passwordHash: hashPassword("secret-other") },
+    { id: "demo", name: "Granate", email: "demo@example.com", balanceCents: 97885, passwordHash: hashPassword("secret-demo") },
+    { id: "other", name: "Other", email: "other@example.com", balanceCents: 0, passwordHash: hashPassword("secret-other") },
+  ];
+  const cards = [
+    { id: "mastercard", userId: "demo", brand: "MASTERCARD", last4: "1234", expires: "02/30" },
+    { id: "visa", userId: "demo", brand: "VISA", last4: "5678", expires: "08/30" },
   ];
   const movements = [
     { id: "adobe", userId: "demo", counterparty: "Adobe", description: "Suscripción", type: MovementType.DEBIT_AUTO, amountCents: 12500, createdAt: new Date("2026-10-20T12:00:00Z") },
@@ -18,6 +22,7 @@ test("sessions protect balance and movements and can be revoked", async (t) => {
   const sessions = new Map<string, { userId: string; expiresAt: Date }>();
   const db = {
     user: { findUnique: async ({ where }: { where: { email: string } }) => users.find((user) => user.email === where.email) ?? null },
+    card: { findMany: async ({ where }: { where: { userId: string } }) => cards.filter((card) => card.userId === where.userId) },
     session: {
       create: async ({ data }: { data: { tokenHash: string; userId: string; expiresAt: Date } }) => {
         sessions.set(data.tokenHash, { userId: data.userId, expiresAt: data.expiresAt });
@@ -74,7 +79,10 @@ test("sessions protect balance and movements and can be revoked", async (t) => {
   const get = (path: string, sessionCookie = cookie) => fetch(`${base}${path}`, { headers: { Cookie: sessionCookie } });
 
   assert.deepEqual(await (await get("/auth/me")).json(), { user: { id: "demo", name: "Granate", email: "demo@example.com" } });
-  assert.deepEqual(await (await get("/balance")).json(), { balanceCents: 97885, card: { brand: "MASTERCARD", last4: "1234", expires: "02/30" } });
+  assert.deepEqual(await (await get("/balance")).json(), { balanceCents: 97885, cards: [
+    { id: "mastercard", brand: "MASTERCARD", last4: "1234", expires: "02/30" },
+    { id: "visa", brand: "VISA", last4: "5678", expires: "08/30" },
+  ] });
   assert.deepEqual((await (await get("/movements")).json()).movements.map((movement: { id: string }) => movement.id), ["adobe", "salary"]);
   assert.deepEqual((await (await get("/movements?q=suscripci%C3%B3n&type=DEBIT_AUTO")).json()).movements.map((movement: { id: string }) => movement.id), ["adobe"]);
   assert.equal((await get("/movements?type=INVALID")).status, 400);
@@ -92,7 +100,7 @@ test("sessions protect balance and movements and can be revoked", async (t) => {
 
   const secondLogin = await post("/auth/login", { email: "other@example.com", password: "secret-other" });
   const otherCookie = secondLogin.headers.get("set-cookie")!.split(";")[0];
-  assert.deepEqual(await (await get("/balance", otherCookie)).json(), { balanceCents: 0, card: null });
+  assert.deepEqual(await (await get("/balance", otherCookie)).json(), { balanceCents: 0, cards: [] });
   assert.deepEqual((await (await get("/movements", otherCookie)).json()).movements.map((movement: { id: string }) => movement.id), ["private"]);
   assert.equal((await get("/movements/adobe", otherCookie)).status, 404);
   const session = [...sessions.values()].find((entry) => entry.userId === "other")!;

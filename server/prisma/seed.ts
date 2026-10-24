@@ -21,16 +21,17 @@ async function main() {
       email,
       passwordHash: hashPassword(password),
       balanceCents: 97885,
-      cardBrand: "MASTERCARD",
-      cardLast4: "1234",
-      cardExpires: "02/30",
     },
   }));
 
-  if (existing) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { cardBrand: "MASTERCARD", cardLast4: "1234", cardExpires: "02/30" },
+  for (const card of [
+    { id: `${user.id}-primary-card`, brand: "MASTERCARD", last4: "1234", expires: "02/30" },
+    { id: `${user.id}-visa-card`, brand: "VISA", last4: "5678", expires: "08/30" },
+  ]) {
+    await prisma.card.upsert({
+      where: { id: card.id },
+      update: { brand: card.brand, last4: card.last4, expires: card.expires },
+      create: { ...card, userId: user.id },
     });
   }
 
@@ -46,7 +47,7 @@ async function main() {
     ].map((movement) => ({ ...movement, id: `${user.id}-${movement.id}`, userId: user.id })),
   });
 
-  console.log("Demo account and movements are ready");
+  console.log("Demo account, cards and movements are ready");
 }
 
 main()

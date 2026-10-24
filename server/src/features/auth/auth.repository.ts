@@ -8,7 +8,7 @@ export function createAuthRepository(prisma: PrismaClient) {
     }),
     findSession: (hash: string) => prisma.session.findUnique({
       where: { tokenHash: hash },
-      include: { user: { select: { id: true, name: true, email: true, balanceCents: true, cardBrand: true, cardLast4: true, cardExpires: true } } },
+      include: { user: { select: { id: true, name: true, email: true, balanceCents: true } } },
     }),
     revokeSession: (userId: string, hash: string) => prisma.session.deleteMany({ where: { tokenHash: hash, userId } }),
   };

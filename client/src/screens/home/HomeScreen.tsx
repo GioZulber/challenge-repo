@@ -13,6 +13,7 @@ import RecentMovements from "./RecentMovements";
 export default function HomeScreen({ initialBalance, initialMovements }: { initialBalance: BalanceResponse | null; initialMovements: Movement[] | null }) {
   const { authStatus, user, refresh, invalidate, leaving, signOutError, handleSignOut } = usePrivateSession();
   const [balance, setBalance] = useState<BalanceResponse | null>(initialBalance);
+  const [activeCard, setActiveCard] = useState(0);
   const [movements, setMovements] = useState<Movement[] | null>(initialMovements);
   const [balanceStatus, setBalanceStatus] = useState<"loading" | "ready" | "error">(initialBalance ? "ready" : "error");
   const [movementsStatus, setMovementsStatus] = useState<"loading" | "ready" | "error">(initialMovements !== null ? "ready" : "error");
@@ -26,6 +27,7 @@ export default function HomeScreen({ initialBalance, initialMovements }: { initi
     let active = true;
     setBalanceStatus("loading");
     setBalance(null);
+    setActiveCard(0);
     void getBalance()
       .then((result) => {
         if (!active) return;
@@ -81,7 +83,25 @@ export default function HomeScreen({ initialBalance, initialMovements }: { initi
                 <button type="button" onClick={() => setBalanceRetry((value) => value + 1)} className="mt-7 rounded-lg bg-[#791a30] px-6 py-3 font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#791a30]">Reintentar saldo</button>
               </section>
             )}
-            {balanceStatus === "ready" && balance && <BalanceCard balance={balance} name={user.name} />}
+            {balanceStatus === "ready" && balance && (
+              <section aria-labelledby="balance-title" className="min-w-0">
+                <h2 id="balance-title" className="sr-only">Saldo disponible y tarjetas</h2>
+                <div role="region" aria-label="Tarjetas, deslizá para ver las demás" tabIndex={0} onScroll={(event) => {
+                  const { scrollLeft, scrollWidth, clientWidth } = event.currentTarget;
+                  if (balance.cards.length > 1 && scrollWidth > clientWidth) {
+                    setActiveCard(Math.round(scrollLeft / (scrollWidth - clientWidth) * (balance.cards.length - 1)));
+                  }
+                }} className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 focus-visible:outline-2 focus-visible:outline-[#791a30] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mr-8 sm:pr-8 lg:mr-0 lg:pr-0">
+                  {balance.cards.length ? balance.cards.map((card, index) => (
+                    <div key={card.id} className="w-[calc(100%-3.5rem)] shrink-0 snap-start">
+                      <div className={`motion-safe:transition-[scale] motion-safe:duration-300 motion-safe:ease-out ${index === Math.min(activeCard, balance.cards.length - 1) ? "scale-100" : "scale-90"}`}>
+                        <BalanceCard balanceCents={balance.balanceCents} card={card} name={user.name} />
+                      </div>
+                    </div>
+                  )) : <div className="w-full shrink-0"><BalanceCard balanceCents={balance.balanceCents} card={null} name={user.name} /></div>}
+                </div>
+              </section>
+            )}
             {movementsStatus === "loading" && <p role="status" className="py-20 text-center text-[#617083]">Cargando movimientos…</p>}
             {movementsStatus === "error" && (
               <section role="alert" className="rounded-[20px] bg-white p-8 text-center">

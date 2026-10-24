@@ -24,11 +24,12 @@ export type ApiError = {
 
 export type BalanceResponse = {
     balanceCents: number;
-    card: {
+    cards: Array<{
+        id: string;
         brand: 'MASTERCARD' | 'VISA';
         last4: string;
         expires: string;
-    } | null;
+    }>;
 };
 
 export type MovementsResponse = {

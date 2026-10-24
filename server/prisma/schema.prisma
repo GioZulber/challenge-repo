@@ -15,12 +15,22 @@ model User {
   email        String     @unique
   passwordHash String
   balanceCents Int        @default(0)
-  cardBrand    String?
-  cardLast4    String?
-  cardExpires  String?
+  cards        Card[]
   sessions     Session[]
   movements    Movement[]
   createdAt    DateTime   @default(now())
+}
+
+model Card {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand     String
+  last4     String
+  expires   String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Session {

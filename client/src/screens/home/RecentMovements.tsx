@@ -8,7 +8,6 @@ export default function RecentMovements({ movements }: { movements: Movement[] }
     <section aria-labelledby="movements-title">
       <div className="mb-5 flex items-center justify-between gap-3">
         <h2 id="movements-title" className="text-xl font-semibold sm:text-2xl">Últimos movimientos</h2>
-        <Link href="/movimientos" aria-label="Buscar movimientos" className="grid size-11 shrink-0 place-items-center text-[#293446] focus-visible:rounded-lg focus-visible:outline-2 focus-visible:outline-[#791a30]"><MagnifierIcon size={24} aria-hidden="true" /></Link>
       </div>
       {movements.length === 0 ? (
         <div className="rounded-[20px] bg-white p-8 text-[#617083]">Todavía no tenés movimientos.</div>
