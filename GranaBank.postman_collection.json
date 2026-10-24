@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "GranaBank API",
+    "description": "Importá la colección en Postman. Completá demoEmail y demoPassword en las variables locales de la colección o en un entorno privado; no guardes credenciales reales en este archivo. Ejecutá Login antes de las rutas privadas: Postman conserva la cookie gb_session automáticamente si el cookie jar está habilitado. Para Dokploy, cambiá baseUrl por la URL pública de la API y origin por el valor exacto de CLIENT_ORIGIN (la URL pública del cliente, sin barra final).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3001" },
+    { "key": "origin", "value": "http://localhost:3000" },
+    { "key": "demoEmail", "value": "" },
+    { "key": "demoPassword", "value": "" },
+    { "key": "movementId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Health responde 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Origin", "value": "{{origin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{demoEmail}}\",\n  \"password\": \"{{demoPassword}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/auth/login"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Login responde 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Sesión actual",
+      "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Sesión actual responde 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Saldo",
+      "request": { "method": "GET", "url": "{{baseUrl}}/balance" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Saldo responde 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Todos los movimientos",
+      "request": { "method": "GET", "url": "{{baseUrl}}/movements" },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Movimientos responde 200', () => pm.response.to.have.status(200));",
+            "if (pm.response.code === 200) {",
+            "  const movements = pm.response.json().movements;",
+            "  if (movements.length) pm.collectionVariables.set('movementId', movements[0].id);",
+            "  else pm.collectionVariables.unset('movementId');",
+            "}"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Buscar y filtrar movimientos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/movements?q=Adobe&type=DEBIT_AUTO"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Filtro responde 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Detalle de movimiento",
+      "request": { "method": "GET", "url": "{{baseUrl}}/movements/{{movementId}}" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Detalle responde 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Origin", "value": "{{origin}}" }],
+        "url": "{{baseUrl}}/auth/logout"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Logout responde 204', () => pm.response.to.have.status(204));"] } }]
+    }
+  ]
+}

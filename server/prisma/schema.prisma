@@ -1,0 +1,54 @@
+generator client {
+  provider          = "prisma-client"
+  output            = "../src/generated/prisma"
+  moduleFormat      = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  balanceCents Int        @default(0)
+  cardBrand    String?
+  cardLast4    String?
+  cardExpires  String?
+  sessions     Session[]
+  movements    Movement[]
+  createdAt    DateTime   @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum MovementType {
+  DEBIT_AUTO
+  RECEIVED
+  SENT
+}
+
+model Movement {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  counterparty String
+  description  String
+  amountCents  Int
+  type         MovementType
+  createdAt    DateTime     @default(now())
+
+  @@index([userId, createdAt])
+}
